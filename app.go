@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"bytes"
@@ -259,7 +259,7 @@ func imageTOstring(m image.Image) string {
 
 }
 
-func main() {
+func Default() *gin.Engine {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*.html")
 
@@ -334,5 +334,6 @@ func main() {
 		ctx.HTML(200, "index.html", gin.H{"data": images, "name": names})
 	})
 
-	router.Run()
+	return router
+	//router.Run()
 }

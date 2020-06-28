@@ -1,6 +1,0 @@
-{
-    "name": "image processor",
-    "version": 2,
-    "builds": [{ "src": "/main.go", "use": "@now/go" }],
-    "routes": [{ "src": "/(.*)", "dest": "/main.go" }]
-}
