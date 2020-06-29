@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"bytes"
@@ -259,28 +259,29 @@ func imageTOstring(m image.Image) string {
 
 }
 
-func Default() *gin.Engine {
+func main() {
 	router := gin.Default()
-	router.LoadHTMLGlob("templates/*.html")
+	router.LoadHTMLGlob("templates/*.tmpl")
 
 	router.GET("/", func(ctx *gin.Context) {
-		ctx.HTML(200, "index.html", gin.H{})
+		ctx.HTML(200, "index.tmpl", gin.H{})
 	})
 	router.POST("/", func(ctx *gin.Context) {
 
 		// form -> File
 		file, _, err := ctx.Request.FormFile("img")
 		if err != nil {
-			ctx.HTML(200, "index.html", gin.H{"error": "file couldn't read"})
+			ctx.HTML(200, "index.tmpl", gin.H{"error": "file couldn't read"})
 		}
 		// File -> Image
 		data, err := png.Decode(file)
 		if err != nil {
-			ctx.HTML(500, "index.html", gin.H{"error": "unsupported this format only .png"})
+			ctx.HTML(500, "index.tmpl", gin.H{"error": "unsupported this format only .png"})
 		}
 		file.Close()
 		// Image resizing
 		re := resize.Resize(320, 0, data, resize.Lanczos3)
+
 		// preprocessing
 		gray := grayscale(re)
 		bit := bitwise(re)
@@ -298,42 +299,26 @@ func Default() *gin.Engine {
 		to := tophat(th)
 
 		var images []string
-		var names []string
+		names := []string{"origin", "gray", "bitwise", "red", "blue", "green", "contraction", "expanstion", "threshould", "dilation", "erosion", "opening", "closing", "morphology", "tophat"}
 
 		images = append(images, imageTOstring(re))
-		names = append(names, "origin")
 		images = append(images, imageTOstring(gray))
-		names = append(names, "gray")
 		images = append(images, imageTOstring(bit))
-		names = append(names, "bitwise")
 		images = append(images, imageTOstring(r))
-		names = append(names, "red")
 		images = append(images, imageTOstring(b))
-		names = append(names, "blue")
 		images = append(images, imageTOstring(g))
-		names = append(names, "green")
 		images = append(images, imageTOstring(co))
-		names = append(names, "contraction")
 		images = append(images, imageTOstring(ex))
-		names = append(names, "expanstion")
 		images = append(images, imageTOstring(th))
-		names = append(names, "threshould")
 		images = append(images, imageTOstring(di))
-		names = append(names, "dilation")
 		images = append(images, imageTOstring(er))
-		names = append(names, "erosion")
 		images = append(images, imageTOstring(op))
-		names = append(names, "opening")
 		images = append(images, imageTOstring(cl))
-		names = append(names, "closing")
 		images = append(images, imageTOstring(mr))
-		names = append(names, "morphology")
 		images = append(images, imageTOstring(to))
-		names = append(names, "tophat")
 
 		ctx.HTML(200, "index.html", gin.H{"data": images, "name": names})
 	})
 
-	return router
-	//router.Run()
+	router.Run()
 }
