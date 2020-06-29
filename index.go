@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"image/png"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
@@ -259,80 +260,73 @@ func imageTOstring(m image.Image) string {
 
 }
 
-func main() {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*.html")
-
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(200, "index.html", gin.H{})
 	})
 	router.POST("/", func(ctx *gin.Context) {
-
-		// form -> File
-		file, _, err := ctx.Request.FormFile("img")
-		if err != nil {
-			ctx.HTML(200, "index.html", gin.H{"error": "file couldn't read"})
+		images, names, err := posts(ctx)
+		if err == "" {
+			ctx.HTML(200, "index.html", gin.H{"data": images, "name": names})
+		} else {
+			ctx.HTML(200, "index.html", gin.H{"error": err})
 		}
-		// File -> Image
-		data, err := png.Decode(file)
-		if err != nil {
-			ctx.HTML(500, "index.html", gin.H{"error": "unsupported this format only .png"})
-		}
-		file.Close()
-		// Image resizing
-		re := resize.Resize(320, 0, data, resize.Lanczos3)
-		// preprocessing
-		gray := grayscale(re)
-		bit := bitwise(re)
-		r := redscale(re)
-		g := greenscale(re)
-		b := bluescale(re)
-		th := threshould(re)
-		co := contraction(re)
-		ex := expansion(re)
-		di := dilation(th)
-		er := erosion(th)
-		op := opening(th)
-		cl := closing(th)
-		mr := morphology(th)
-		to := tophat(th)
-
-		var images []string
-		var names []string
-
-		images = append(images, imageTOstring(re))
-		names = append(names, "origin")
-		images = append(images, imageTOstring(gray))
-		names = append(names, "gray")
-		images = append(images, imageTOstring(bit))
-		names = append(names, "bitwise")
-		images = append(images, imageTOstring(r))
-		names = append(names, "red")
-		images = append(images, imageTOstring(b))
-		names = append(names, "blue")
-		images = append(images, imageTOstring(g))
-		names = append(names, "green")
-		images = append(images, imageTOstring(co))
-		names = append(names, "contraction")
-		images = append(images, imageTOstring(ex))
-		names = append(names, "expanstion")
-		images = append(images, imageTOstring(th))
-		names = append(names, "threshould")
-		images = append(images, imageTOstring(di))
-		names = append(names, "dilation")
-		images = append(images, imageTOstring(er))
-		names = append(names, "erosion")
-		images = append(images, imageTOstring(op))
-		names = append(names, "opening")
-		images = append(images, imageTOstring(cl))
-		names = append(names, "closing")
-		images = append(images, imageTOstring(mr))
-		names = append(names, "morphology")
-		images = append(images, imageTOstring(to))
-		names = append(names, "tophat")
-
-		ctx.HTML(200, "index.html", gin.H{"data": images, "name": names})
 	})
+	router.ServeHTTP(w, r)
+}
 
-	router.Run()
+func posts(ctx *gin.Context) ([]string, []string, string) {
+	// form -> File
+	file, _, err := ctx.Request.FormFile("img")
+	empty := []string{""}
+	if err != nil {
+		return empty, empty, "file couldn't read"
+	}
+	// File -> Image
+	data, err := png.Decode(file)
+	if err != nil {
+		return empty, empty, "unsupported this format only .png"
+	}
+	file.Close()
+	// Image resizing
+	re := resize.Resize(320, 0, data, resize.Lanczos3)
+	// preprocessing
+	gray := grayscale(re)
+	bit := bitwise(re)
+	r := redscale(re)
+	g := greenscale(re)
+	b := bluescale(re)
+	th := threshould(re)
+	co := contraction(re)
+	ex := expansion(re)
+	di := dilation(th)
+	er := erosion(th)
+	op := opening(th)
+	cl := closing(th)
+	mr := morphology(th)
+	to := tophat(th)
+
+	var images []string
+	names := []string{"origin", "gray", "bitwise", "red", "blue", "green", "contraction", "expansion", "threshould", "dilation", "erosion", "opening", "closing", "morphology", "tophat"}
+
+	images = append(images, imageTOstring(re))
+	images = append(images, imageTOstring(gray))
+	images = append(images, imageTOstring(bit))
+	images = append(images, imageTOstring(r))
+	images = append(images, imageTOstring(b))
+	images = append(images, imageTOstring(g))
+	images = append(images, imageTOstring(co))
+	images = append(images, imageTOstring(ex))
+	images = append(images, imageTOstring(th))
+	images = append(images, imageTOstring(di))
+	images = append(images, imageTOstring(er))
+	images = append(images, imageTOstring(op))
+	images = append(images, imageTOstring(cl))
+	images = append(images, imageTOstring(mr))
+	images = append(images, imageTOstring(to))
+
+	return images, names, ""
+
 }

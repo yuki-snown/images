@@ -1,6 +1,11 @@
 {
-    "name": "image processor",
+    "name": "image_processor",
     "version": 2,
-    "builds": [{ "src": "/main.go", "use": "@now/go" }],
-    "routes": [{ "src": "/(.*)", "dest": "/main.go" }]
+    "builds": [
+        { "src": "/index.go", "use": "@now/go" },
+        { "src": "/templates/*.html", "use": "@now/static" }
+    ],
+    "routes": [
+      { "src": "/", "dest": "/index.go" }
+    ]
 }
