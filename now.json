@@ -5,6 +5,11 @@
         { "src": "/index.go", "use": "@now/go" },
         { "src": "/templates/*.html", "use": "@now/static" }
     ],
+    "build": {
+        "env": {
+          "GO_BUILD_FLAGS": "-ldflags '-s -w'"
+        }
+    },
     "routes": [
       { "src": "/", "dest": "/index.go" }
     ]
