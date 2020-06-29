@@ -317,7 +317,7 @@ func main() {
 		images = append(images, imageTOstring(mr))
 		images = append(images, imageTOstring(to))
 
-		ctx.HTML(200, "index.html", gin.H{"data": images, "name": names})
+		ctx.HTML(200, "index.tmpl", gin.H{"data": images, "name": names})
 	})
 
 	router.Run()
