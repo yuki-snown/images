@@ -1,0 +1,23 @@
+
+.container {
+    table-layout: fixed;
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: 30vw 30vw 30vw;
+    justify-content: center;
+    align-content: end; 
+}
+.card {
+    text-align: center;
+    vertical-align: middle;
+    max-width: 25vw;
+}
+.img {
+    max-width: 30vw;
+}
+.str {
+    text-align: center;
+}
+h3 {
+    color: red;
+}
