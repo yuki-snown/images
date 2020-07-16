@@ -260,6 +260,7 @@ func imageTOstring(m image.Image) string {
 }
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*.html")
 	router.Static("/assets", "./assets")
@@ -321,5 +322,5 @@ func main() {
 		ctx.HTML(200, "index.html", gin.H{"data": images, "name": names})
 	})
 
-	router.Run()
+	router.Run(":3000")
 }
