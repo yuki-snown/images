@@ -4,8 +4,8 @@
 ```
 $ sudo apt update
 $ sudo apt install docker.io
-$ cd images
 $ git clone https://github.com/yuki-snown/images.git
+$ cd images
 $ sudo docker-compose up -d
 ```
 
